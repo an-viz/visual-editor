@@ -1,5 +1,7 @@
 import React, { ChangeEvent, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
+import { Canvas } from './components/Canvas';
+import { Panel } from './components/Panel';
 
 interface Rect {
   x: number,
@@ -183,29 +185,17 @@ const importProject = (e: ChangeEvent<HTMLInputElement>) => {
 
 return (
     <div className="App">
-      <canvas
-        className='editor'
-        id='editor'
-        ref={canvasRef}
-        height={"750"}
-        width={"1050"}
-      ></canvas>
-      <div className='rightPanel'>
-        <button
-          onClick={addRect}
-        >Add rectangle</button>
-        <div className='separator' />
-        <div className='ip-container'>
-        <div className='label'>Duration:</div>
-          <input className='input' type='number' value={seconds} min={1} onChange={(e) => setSeconds(e.target.value)}/>
-          <span className='ip-seconds'>s</span>
-        </div>
-        <button onClick={rotateRects} disabled={isPlaying}>Play</button>
-        <div className='separator' />
-        <button onClick={downloadJson}>Download .json</button>
-        <label htmlFor='import' className='input-label btn'>Import Project</label>
-        <input id='import' className='import-input' type='file' onChange={importProject} accept='.json' />
-      </div>
+      <Canvas ref={canvasRef}/>
+
+      <Panel 
+        addRect={addRect}
+        seconds={seconds}
+        setSeconds={setSeconds}
+        rotateRects={rotateRects}
+        isPlaying={isPlaying}
+        downloadJson={downloadJson}
+        importProject={importProject}
+      />
     </div>
   );
 }
