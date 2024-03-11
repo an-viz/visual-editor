@@ -1,4 +1,4 @@
-import React, { ChangeEvent, ChangeEventHandler, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 
 interface Rect {
@@ -195,11 +195,11 @@ return (
           onClick={addRect}
         >Add rectangle</button>
         <div className='separator' />
+        <div className='ip-container'>
         <div className='label'>Duration:</div>
-        {/* <div className='ip-container'> */}
           <input className='input' type='number' value={seconds} min={1} onChange={(e) => setSeconds(e.target.value)}/>
-          {/* <span className='ip-seconds'>s</span> */}
-        {/* </div> */}
+          <span className='ip-seconds'>s</span>
+        </div>
         <button onClick={rotateRects} disabled={isPlaying}>Play</button>
         <div className='separator' />
         <button onClick={downloadJson}>Download .json</button>
