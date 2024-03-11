@@ -4,13 +4,85 @@
 }
 
 .editor{
-  border: 2px solid;
   background-color: #eee;
+  width: 90%;
 }
 
 .rightPanel{
   padding: 1%;
-  width: 20%;
+  width: 10%;
   display: flex;
   flex-direction: column;
+}
+
+.input{
+  border: 2px solid;
+  box-shadow: 2px 2px 4px #A9A9A9;
+  text-align: right;
+  height: 32px;
+}
+
+.input:focus {
+  outline: none;
+}
+
+.separator{
+  background-color: #dddddd;
+  height: 2px;
+  margin: 32px;
+}
+
+.input-label{
+  text-align: center;
+}
+
+.import-input{
+  display: none;
+  opacity: 0;
+  z-index: -1;
+  position: absolute;
+}
+
+.ip-container{
+  position: relative;
+}
+
+.ip-seconds{
+  position: absolute;
+}
+
+input[type="number"] {
+  -webkit-appearance: textfield;
+     -moz-appearance: textfield;
+          appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+}
+
+label{
+  font-size: 12px;
+  font-family: sans-serif;
+  color: #3a3a3a;
+}
+
+button, .btn {
+  font-size: 13px;
+  font-family: sans-serif;
+  font-weight: bold;
+  color: #3a3a3a;
+  background-color: #fff;
+  margin-top: 8px;
+  padding: 20px;
+  cursor: pointer;
+  outline: none;
+  border: 2px solid;
+  border-radius: 4px;
+  box-shadow: 2px 2px 4px #A9A9A9;
+}
+
+button:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
 }

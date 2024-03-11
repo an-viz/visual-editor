@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, ChangeEventHandler, MutableRefObject, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 
 interface Rect {
@@ -11,8 +11,9 @@ interface Rect {
 }
 
 const SAMPLE_RECTS: Rect[] = [
-    {x: 0, y: 0, w: 50, h: 50, clr:'red', d: 45},
-    {x: 75, y: 75, w: 50, h: 50, clr: 'black', d: 270},
+    // {x: 0, y: 0, w: 50, h: 50, clr:'red', d: 45},
+    {x: 150, y: 30, w: 100, h: 100, clr: 'black', d: 0},
+    {x: 300, y: 250, w: 200, h: 75, clr: 'black', d: 0},
 ]
 
 const randomNumber = (limit: number) => {
@@ -33,6 +34,9 @@ const getRandomColor = () => {
 function App() {
 
 const [rects, setRects] = useState<Rect[]>([])
+const [seconds, setSeconds] = useState<string>('1')
+const [isPlaying, setIsPlaying] = useState<boolean>(false)
+
 const canvasRef: MutableRefObject<HTMLCanvasElement | null> = useRef(null);
 
 const getSelectedRect = (x: number, y: number) => {
@@ -54,20 +58,52 @@ const changeRectClr = useCallback((e:  MouseEvent) => {
   }
 }, [rects])
 
-const paintRects = (rectangles: Rect[], canvas: HTMLCanvasElement) => {
+
+const paintRects = (rectangles: Rect[], canvas: HTMLCanvasElement, isRotate?: boolean) => {
+
   if(canvas && canvas.getContext && rectangles){
     const ctx: CanvasRenderingContext2D | null = canvas.getContext('2d');
     if(ctx){
-      ctx.save()
-      ctx.beginPath()
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       rectangles.forEach(rect => {
-        // ctx.translate(rect.x + rect.w/2, rect.y+rect.h/2);
-        // ctx.rotate(rect.d);
-        ctx.fillStyle = rect.clr;
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
+        ctx.save();
+        ctx.translate(rect.x+rect.w/2,rect.y+rect.h/2);
+        ctx.rotate(rect.d);
+        ctx.fillStyle=rect.clr;
+        ctx.fillRect(-rect.w/2,-rect.h/2,rect.w,rect.h);
+        ctx.restore();
       });
+
+      if(isRotate){
+        const prevRects = rects
+        const rotation = setInterval(() => {
+          ctx.clearRect(0,0,canvas.width, canvas.height);
+          for(var i=0;i<prevRects.length;i++){
+            // draw this rect at its specified angle
+            var rect=prevRects[i];
+            ctx.save();
+            ctx.translate(rect.x+rect.w/2,rect.y+rect.h/2);
+            ctx.rotate(rect.d);
+            ctx.fillStyle=rect.clr;
+            ctx.fillRect(-rect.w/2,-rect.h/2,rect.w,rect.h);
+            ctx.restore();
+
+            // increase this rect's angle for next time
+            rect.d+=(Math.PI*2)/60;
+            prevRects[i] = rect;
+            setRects(prevRects)
+
+          }
+        }, 25)
+
+        const ms = Number(seconds) * 1000
+        setTimeout(() => {
+          clearInterval(rotation);
+          setIsPlaying(false)
+        } , ms)
+        
+      }
     }
   }
 }
@@ -88,14 +124,19 @@ const addRect = () => {
   }
 }
 
+const rotateRects = () => {
+  setIsPlaying(true);
+  if(canvasRef.current){
+    paintRects(rects, canvasRef.current, true)
+  }
+}
+
 useEffect(() => {
   if(canvasRef && canvasRef.current){
     paintRects(rects, canvasRef.current)
   }
 
   if(canvasRef && canvasRef.current){
-    // canvas.addEventListener('mousedown', (e) => console.log(e.pageX))
-    // canvas.addEventListener('mousemove', (e) => console.log(e.pageX))
     canvasRef.current.addEventListener('mouseup', (e) => changeRectClr(e))
   }
 
@@ -106,6 +147,39 @@ useEffect(() => {
   }
 }, [rects, changeRectClr])
 
+
+const downloadJson = () => {
+    // create file in browser
+  const fileName = "project_data";
+  const json = JSON.stringify({rects}, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const href = URL.createObjectURL(blob);
+
+  // create "a" HTML element with href to file
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = fileName + ".json";
+  document.body.appendChild(link);
+  link.click();
+
+  // clean up "a" element & remove ObjectURL
+  document.body.removeChild(link);
+  URL.revokeObjectURL(href);
+}
+
+const importProject = (e: ChangeEvent<HTMLInputElement>) => {
+  if(e && e.target && e.target.files){
+    const fileReader = new FileReader();
+      fileReader.readAsText(e.target.files[0], "UTF-8");
+      fileReader.onload = e => {
+        let blob:any;
+        if(e && e.target && e.target.result){
+          blob = JSON.parse(e.target.result as string)
+          setRects(blob['rects'])
+        }
+      };
+  }
+}
 
 return (
     <div className="App">
@@ -120,10 +194,17 @@ return (
         <button
           onClick={addRect}
         >Add rectangle</button>
-        <div>duration:</div>
-        <input type='number' />
-        <button>Play</button>
-        <button>Download .json</button>
+        <div className='separator' />
+        <div className='label'>Duration:</div>
+        {/* <div className='ip-container'> */}
+          <input className='input' type='number' value={seconds} min={1} onChange={(e) => setSeconds(e.target.value)}/>
+          {/* <span className='ip-seconds'>s</span> */}
+        {/* </div> */}
+        <button onClick={rotateRects} disabled={isPlaying}>Play</button>
+        <div className='separator' />
+        <button onClick={downloadJson}>Download .json</button>
+        <label htmlFor='import' className='input-label btn'>Import Project</label>
+        <input id='import' className='import-input' type='file' onChange={importProject} accept='.json' />
       </div>
     </div>
   );
