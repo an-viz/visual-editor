@@ -114,15 +114,15 @@ const paintRects = (rectangles: Rect[], canvas: HTMLCanvasElement, isRotate?: bo
 const addRect = () => {
   if(canvasRef && canvasRef.current){
     const canvasRect = canvasRef.current.getBoundingClientRect()
-    const randW = randomNumber(canvasRect.width)
-    const randH = randomNumber(canvasRect.height)
+    const randW = randomNumber(canvasRect.width/2)
+    const randH = randomNumber(canvasRect.height/2)
     const randX = randomNumber(canvasRect.width - randW)
     const randY = randomNumber(canvasRect.height - randH)
 
     //360 because max deg ; converting deg to radians;
     const randDegree = randomNumber(360)* Math.PI / 180;
-
-    setRects(prevRects => [...prevRects, {x: randX, y: randY, w: randX, h: randY, clr: getRandomColor(), d: randDegree}])
+    
+    setRects(prevRects => [...prevRects, {x: randX, y: randY, w: randW, h: randH, clr: getRandomColor(), d: randDegree}])
   }
 }
 
